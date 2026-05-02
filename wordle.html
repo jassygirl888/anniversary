@@ -28,11 +28,19 @@
       cursor: pointer;
     }
     #guess {
-    font-size: 45px;   /* 🔥 text size */
-    padding: 45px 47px; /* 🔥 box size */
-    width: 140px;       /* 🔥 width of input box */
+      font-size: 24px;
+      padding: 12px;
+      width: 160px;
+      text-align: center;
+      border: 2px solid #ccc;
+      border-radius: 6px;
+    }
+    
+    #guess:focus {
+    outline: none;
+    border-color: #6aaa64;
   }
-
+    
     #board {
       display: flex;
       flex-direction: column;
