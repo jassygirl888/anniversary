@@ -6,14 +6,14 @@
   <style>
     body {
       font-family: Arial;
-      height: 100vh;
+      margin: 0;
+      min-height: 100vh;
       display: flex;
       justify-content: center;
       align-items: center;
-      margin: 0;
       background: #fafafa;
-      text-align: center;
       flex-direction: column;
+      text-align: center;
     }
 
     .home {
@@ -32,36 +32,36 @@
     #game {
       display: flex;
       flex-direction: column;
-      gap: 12px;
+      gap: 14px;
+      align-items: center;
     }
 
+    /* ACTIVE GRID */
     .grid {
       display: grid;
-      grid-template-columns: repeat(4, 90px);
-      gap: 10px;
-      justify-content: center;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 6px;
+      width: 420px;
     }
-    
+
     .tile {
-      width: 100%;
       aspect-ratio: 1 / 1;
       display: flex;
       align-items: center;
       justify-content: center;
-    
+
       border: 2px solid #ccc;
       border-radius: 12px;
       background: white;
-    
       cursor: pointer;
-    
-      font-size: 11px;        /* 🔥 smaller text */
+
+      font-size: 11px;
       text-align: center;
       line-height: 1.1;
-    
+
       padding: 6px;
       box-sizing: border-box;
-    
+
       word-break: break-word;
       overflow-wrap: break-word;
     }
@@ -70,10 +70,39 @@
       background: #ddd;
     }
 
-    .locked {
+    /* SOLVED SECTION */
+    .solved-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      margin-bottom: 8px;
+    }
+
+    .group-title {
+      font-size: 14px;
+      font-weight: bold;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: #333;
+    }
+
+    .solved-row {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 6px;
+      width: 420px;
+    }
+
+    .solved-tile {
+      aspect-ratio: 1 / 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      border-radius: 12px;
+      font-size: 11px;
+      font-weight: bold;
       color: white;
-      border: none;
-      cursor: default;
     }
 
     button {
@@ -89,11 +118,6 @@
       font-weight: bold;
       height: 20px;
     }
-
-    #lives {
-      font-size: 14px;
-      color: #555;
-    }
   </style>
 </head>
 
@@ -104,8 +128,6 @@
 <h2>Connections</h2>
 
 <div id="game">
-
-  <div id="lives">Mistakes remaining: 4</div>
 
   <div id="solved"></div>
 
@@ -121,16 +143,16 @@
 
 const groups = [
   { name: "FIRST DATE ORDERS", words: ["PIZZA","PISTACHIO","MOZZARELLA BALLS","RAVIOLI"] },
-  { name: "DATING SPOTS", words: ["AMANO","KODAWARI","MINANTE","TALES AND FEELINGS"] },
+  { name: "DATING SPOTS", words: ["AMANAO","KODAWARI","MINANTE","TALES AND FEELINGS"] },
   { name: "CALL NAMES", words: ["BABA","LOVEY","LANGLING","BABY"] },
   { name: "BABE FAVORITES", words: ["BURGER","TTEOKBOKKI","COOKIES","COCO MILKTEA"] }
 ];
 
 const colors = [
-  "#f9df6d",
-  "#6aaa64",
-  "#a0c4ff",
-  "#cdb4db"
+  "#f9df6d", // yellow
+  "#6aaa64", // green
+  "#a0c4ff", // blue
+  "#cdb4db"  // purple
 ];
 
 let allWords = groups.flatMap(g => g.words)
@@ -138,7 +160,6 @@ let allWords = groups.flatMap(g => g.words)
 
 let selected = [];
 let solvedCount = 0;
-let mistakes = 4;
 
 function renderGrid() {
   document.getElementById("grid").innerHTML =
@@ -160,7 +181,7 @@ function toggle(el, word) {
 }
 
 function submitGroup() {
-  if (selected.length !== 4 || mistakes <= 0) return;
+  if (selected.length !== 4) return;
 
   let match = groups.find(g =>
     g.words.every(w => selected.includes(w))
@@ -172,49 +193,49 @@ function submitGroup() {
   });
 
   if (match) {
+
+    // remove from active pool
     allWords = allWords.filter(w => !match.words.includes(w));
 
+    // create NYT-style solved block
+    let wrapper = document.createElement("div");
+    wrapper.className = "solved-group";
+
+    let title = document.createElement("div");
+    title.className = "group-title";
+    title.innerText = match.name;
+
     let row = document.createElement("div");
-    row.className = "grid";
+    row.className = "solved-row";
 
     match.words.forEach(w => {
       let box = document.createElement("div");
-      box.className = "tile locked";
+      box.className = "solved-tile";
       box.style.background = colors[solvedCount];
       box.innerText = w;
       row.appendChild(box);
     });
 
-    document.getElementById("solved").appendChild(row);
+    wrapper.appendChild(title);
+    wrapper.appendChild(row);
+
+    document.getElementById("solved").appendChild(wrapper);
 
     solvedCount++;
     renderGrid();
 
     document.getElementById("status").innerText =
-      "Solved: " + match.name + " 💛";
+      "Solved 💛 " + match.name;
 
+  } else if (almost) {
+    document.getElementById("status").innerText =
+      "So close… 1 away 👀";
   } else {
-    mistakes--;
-
-    document.getElementById("lives").innerText =
-      "Mistakes remaining: " + mistakes;
-
-    if (almost) {
-      document.getElementById("status").innerText =
-        "So close… 1 away 👀";
-    } else {
-      document.getElementById("status").innerText =
-        "Not quite ❌";
-    }
-
-    if (mistakes === 0) {
-      document.getElementById("status").innerText =
-        "Game Over 💔";
-    }
+    document.getElementById("status").innerText =
+      "Not quite ❌";
   }
 
   selected = [];
-
   document.querySelectorAll(".tile").forEach(t =>
     t.classList.remove("selected")
   );
