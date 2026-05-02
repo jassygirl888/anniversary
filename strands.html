@@ -15,7 +15,6 @@
       text-align: center;
     }
 
-    /* 🏠 HOME BUTTON */
     .home {
       position: fixed;
       top: 15px;
@@ -66,14 +65,12 @@
 
 <body>
 
-<!-- 🏠 HOME BUTTON -->
 <button class="home" onclick="location.href='index.html'">🏠 Home</button>
 
 <div>
   <h2>Strands</h2>
   <p>Theme: Moments of Us 💛</p>
 
-  <!-- GRID -->
   <div class="grid" id="grid"></div>
 
   <p>Current word: <span id="current"></span></p>
@@ -83,7 +80,7 @@
   <p id="status"></p>
 
   <p id="spangram" style="display:none; font-weight:bold;">
-    🌟 Spangram Unlocked: SEASON ONE
+    🌟 Spangram: SEASON ONE 💛
   </p>
 </div>
 
@@ -93,12 +90,20 @@
 // 🔥 EDIT WORDS HERE ONLY
 //////////////////////////////
 
-const words = ["PHOTOBOOTHS","PIZZA","CALLS","COFFEE","SUSHI","JESSY","SEASONONE","TICKETS"];
+const words = [
+  "PHOTOBOOTH",
+  "PIZZA",
+  "CALLS",
+  "COFFEE",
+  "SUSHI",
+  "JESSY",
+  "TICKETS"
+];
 
-// create letter pool
-let pool = "PHOTOBOOTHSPIZZACALLSCOFFEESUSHIJESSYSEASONONETICKETS".split("");
+// 🧠 create safe letter pool
+let pool = words.join("").split("");
 
-// shuffle letters (important for gameplay feel)
+// shuffle
 pool.sort(() => Math.random() - 0.5);
 
 let current = "";
@@ -106,19 +111,24 @@ let found = [];
 
 // render grid
 document.getElementById("grid").innerHTML =
-  pool.map(l =>
-    `<div class="cell" onclick="pick(this,'${l}')">${l}</div>`
+  pool.map((l, i) =>
+    `<div class="cell" data-i="${i}" onclick="pick(this,'${l}')">${l}</div>`
   ).join("");
 
 function pick(el, letter) {
+  // prevent duplicate spam selection
+  if (el.classList.contains("selected")) return;
+
   el.classList.add("selected");
   current += letter;
+
   document.getElementById("current").innerText = current;
 }
 
 function submitWord() {
   if (words.includes(current) && !found.includes(current)) {
     found.push(current);
+
     document.getElementById("status").innerText =
       "Found: " + current + " 💛";
   } else {
@@ -129,7 +139,7 @@ function submitWord() {
   current = "";
   document.getElementById("current").innerText = "";
 
-  // reset selection visuals
+  // reset grid selection
   document.querySelectorAll(".cell").forEach(c =>
     c.classList.remove("selected")
   );
