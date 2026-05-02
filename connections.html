@@ -64,12 +64,16 @@ style="position:fixed; top:15px; left:15px; padding:8px 12px; border:none; borde
 /////////////////////////////
 
 const groups = [
-  ["PIZZA","PISTACHIO","MOZZARELLA BALLS","RAVIOLI"], // things in our first date
-  ["AMANAO","KODAWARI","MINANTE","TALES AND FEELINGS"], // dating spots
-  ["BABA","LOVEY","LANGLING","BABY"],
-  ["BURGER","TTEOKBOKKI","COOKIES","COCO MILKTEA"]
+  { name: "FIRST DATE ORDERS",["PIZZA","PISTACHIO","MOZZARELLA BALLS","RAVIOLI"]},
+  { name: "DATING SPOTS",["AMANAO","KODAWARI","MINANTE","TALES AND FEELINGS"]},
+  { name: "CALL NAMES",["BABA","LOVEY","LANGLING","BABY"]},
+  { name: "BABE FAVORITES", ["BURGER","TTEOKBOKKI","COOKIES","COCO MILKTEA"]}
 ];
 
+// flatten + shuffle
+let allWords = groups.flatMap(g => g.words)
+  .sort(() => Math.random() - 0.5);
+  
 let selected = [];
 let allWords = groups.flat();
 
