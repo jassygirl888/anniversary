@@ -1,19 +1,19 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Wordle</title>
+  <title>Wordle 💛</title>
 
   <style>
     body {
       font-family: Arial;
       height: 100vh;
       display: flex;
+      flex-direction: column;
       justify-content: center;
       align-items: center;
       margin: 0;
       background: #fafafa;
       text-align: center;
-      flex-direction: column;
     }
 
     .home {
@@ -33,7 +33,7 @@
       display: flex;
       flex-direction: column;
       gap: 6px;
-      margin-bottom: 20px;
+      margin-bottom: 10px;
     }
 
     .row {
@@ -57,6 +57,7 @@
       display: flex;
       flex-direction: column;
       gap: 6px;
+      margin-top: 10px;
     }
 
     .keyrow {
@@ -78,6 +79,17 @@
     .wide {
       min-width: 60px;
     }
+
+    .submit-btn {
+      margin-top: 10px;
+      padding: 10px 16px;
+      border: none;
+      border-radius: 6px;
+      background: #6aaa64;
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+    }
   </style>
 </head>
 
@@ -89,9 +101,10 @@
 
 <div id="board"></div>
 
+<button class="submit-btn" onclick="submitGuess()">Submit</button>
+
 <p id="status"></p>
 
-<!-- KEYBOARD -->
 <div class="keyboard">
   <div class="keyrow" id="row1"></div>
   <div class="keyrow" id="row2"></div>
@@ -104,10 +117,12 @@ const ANSWER = "LOVEY";
 let current = "";
 let tries = 0;
 
+const keyState = {}; // track best color per key
+
 const keys = [
   "QWERTYUIOP",
   "ASDFGHJKL",
-  "ENTERZXCVBNM⌫"
+  "ZXCVBNM"
 ];
 
 // build keyboard
@@ -118,17 +133,14 @@ keys.forEach((row, i) => {
     let key = document.createElement("button");
     key.innerText = k;
     key.className = "key";
-
-    if (k === "ENTER" || k === "⌫") {
-      key.classList.add("wide");
-    }
+    key.id = "key-" + k;
 
     key.onclick = () => handleKey(k);
     container.appendChild(key);
   });
 });
 
-// create empty rows
+// create board
 for (let i = 0; i < 5; i++) {
   let row = document.createElement("div");
   row.className = "row";
@@ -145,15 +157,8 @@ for (let i = 0; i < 5; i++) {
 function handleKey(k) {
   if (tries >= 5) return;
 
-  if (k === "⌫") {
-    current = current.slice(0, -1);
-  } else if (k === "ENTER") {
-    if (current.length === 5) submitGuess();
-    return;
-  } else {
-    if (current.length < 5) {
-      current += k;
-    }
+  if (current.length < 5) {
+    current += k;
   }
 
   updateTiles();
@@ -169,21 +174,29 @@ function updateTiles() {
 }
 
 function submitGuess() {
+  if (current.length !== 5 || tries >= 5) return;
+
   let row = document.getElementsByClassName("row")[tries];
   let tiles = row.children;
 
   for (let i = 0; i < 5; i++) {
     let letter = current[i];
+    let key = document.getElementById("key-" + letter);
 
     if (letter === ANSWER[i]) {
       tiles[i].style.background = "#6aaa64";
       tiles[i].style.color = "white";
-    } else if (ANSWER.includes(letter)) {
+      updateKey(letter, "#6aaa64");
+    } 
+    else if (ANSWER.includes(letter)) {
       tiles[i].style.background = "#c9b458";
       tiles[i].style.color = "white";
-    } else {
+      updateKey(letter, "#c9b458");
+    } 
+    else {
       tiles[i].style.background = "#787c7e";
       tiles[i].style.color = "white";
+      updateKey(letter, "#787c7e");
     }
   }
 
@@ -193,6 +206,20 @@ function submitGuess() {
 
   tries++;
   current = "";
+}
+
+function updateKey(letter, color) {
+  const priority = {
+    "#6aaa64": 3, // green
+    "#c9b458": 2, // yellow
+    "#787c7e": 1  // gray
+  };
+
+  if (!keyState[letter] || priority[color] > priority[keyState[letter]]) {
+    keyState[letter] = color;
+    document.getElementById("key-" + letter).style.background = color;
+    document.getElementById("key-" + letter).style.color = "white";
+  }
 }
 
 </script>
