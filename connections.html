@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Connections 💛</title>
+
+  <style>
+    body {
+      font-family: Arial;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin: 0;
+      background: #fafafa;
+      text-align: center;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(4, 120px);
+      gap: 10px;
+      justify-content: center;
+    }
+
+    .tile {
+      padding: 10px;
+      border: 1px solid #ccc;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .selected {
+      background: #ddd;
+    }
+  </style>
+</head>
+
+<body>
+
+<div>
+  <h2>Connections</h2>
+
+  <div class="grid" id="grid"></div>
+
+  <button onclick="submitGroup()">Submit</button>
+  <p id="status"></p>
+</div>
+
+<script>
+
+/////////////////////////////
+// 🔥 CHANGE GROUPS HERE
+/////////////////////////////
+
+const groups = [
+  ["PIZZA","PISTACHIO","MOZZARELLA BALLS","RAVIOLI"], // things in our first date
+  ["AMANAO","KODAWARI","MINANTE","TALES AND FEELINGS"], // dating spots
+  ["BABA","LOVEY","LANGLING","BABY"],
+  ["BURGER","TTEOKBOKKI","COOKIES","COCO MILKTEA"]
+];
+
+let selected = [];
+let allWords = groups.flat();
+
+document.getElementById("grid").innerHTML =
+  allWords.map(w =>
+    `<div class="tile" onclick="toggle(this,'${w}')">${w}</div>`
+  ).join("");
+
+function toggle(el, word) {
+  if (selected.includes(word)) {
+    selected = selected.filter(x => x !== word);
+    el.classList.remove("selected");
+  } else if (selected.length < 4) {
+    selected.push(word);
+    el.classList.add("selected");
+  }
+}
+
+function submitGroup() {
+  if (selected.length !== 4) return;
+
+  let correct = groups.some(g =>
+    g.every(w => selected.includes(w))
+  );
+
+  document.getElementById("status").innerText =
+    correct ? "Correct 💛" : "Wrong ❌";
+
+  selected = [];
+  document.querySelectorAll(".tile").forEach(t =>
+    t.classList.remove("selected")
+  );
+}
+
+</script>
+
+</body>
+</html>
