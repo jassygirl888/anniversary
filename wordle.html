@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Wordle</title>
+
+  <style>
+    body {
+      font-family: Arial;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin: 0;
+      background: #fafafa;
+      text-align: center;
+    }
+  </style>
+</head>
+
+<body>
+
+<div>
+  <h2>Wordle</h2>
+
+  <input id="guess" maxlength="5" />
+  <button onclick="check()">Guess</button>
+
+  <div id="board"></div>
+  <p id="status"></p>
+</div>
+
+<script>
+
+const ANSWER = "LOVEY"; // 🔥 CHANGE THIS
+
+let tries = 0;
+
+function check() {
+  if (tries >= 5) return;
+
+  let g = document.getElementById("guess").value.toUpperCase();
+  let result = "";
+
+  for (let i = 0; i < 5; i++) {
+    if (g[i] === ANSWER[i]) result += "🟩";
+    else if (ANSWER.includes(g[i])) result += "🟨";
+    else result += "⬜";
+  }
+
+  document.getElementById("board").innerHTML += `<div>${g} ${result}</div>`;
+  tries++;
+
+  if (g === ANSWER) {
+    document.getElementById("status").innerText = "You got it 💛";
+  } else if (tries === 5) {
+    document.getElementById("status").innerText = "Answer: " + ANSWER;
+  }
+
+  document.getElementById("guess").value = "";
+}
+
+</script>
+
+</body>
+</html>
