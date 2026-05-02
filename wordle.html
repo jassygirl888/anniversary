@@ -25,11 +25,29 @@
       font-size: 16px;
     }
     
-    #board div {
-      font-size: 28px;
-      margin: 6px;
-      letter-spacing: 3px;
-    }
+    #board {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 10px;
+  }
+  
+  .row {
+    display: flex;
+    justify-content: center;
+    gap: 6px;
+  }
+  
+  .tile {
+    width: 40px;
+    height: 40px;
+    border: 2px solid #ccc;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 18px;
+  }
   </style>
 </head>
 
@@ -58,21 +76,30 @@ function check() {
   if (tries >= 5) return;
 
   let g = document.getElementById("guess").value.toUpperCase();
-  let result = "";
+  let row = document.createElement("div");
+  row.className = "row";
 
   for (let i = 0; i < 5; i++) {
-    if (g[i] === ANSWER[i]) result += "🟩";
-    else if (ANSWER.includes(g[i])) result += "🟨";
-    else result += "⬜";
+    let box = document.createElement("div");
+    box.className = "tile";
+    box.innerText = g[i];
+
+    if (g[i] === ANSWER[i]) {
+      box.style.background = "#6aaa64"; // green
+      box.style.color = "white";
+    } else if (ANSWER.includes(g[i])) {
+      box.style.background = "#c9b458"; // yellow
+      box.style.color = "white";
+    }
+
+    row.appendChild(box);
   }
 
-  document.getElementById("board").innerHTML += `<div>${g} ${result}</div>`;
+  document.getElementById("board").appendChild(row);
   tries++;
 
   if (g === ANSWER) {
     document.getElementById("status").innerText = "You got it 💛";
-  } else if (tries === 5) {
-    document.getElementById("status").innerText = "Answer: " + ANSWER;
   }
 
   document.getElementById("guess").value = "";
