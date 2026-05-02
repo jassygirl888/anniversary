@@ -13,18 +13,26 @@
       margin: 0;
       background: #fafafa;
       text-align: center;
+      flex-direction: column;
     }
 
     .home {
       position: fixed;
-      top: 15px;
-      left: 15px;
-      padding: 8px 12px;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      padding: 10px 16px;
       border: none;
-      border-radius: 6px;
+      border-radius: 8px;
       background: #333;
       color: white;
       cursor: pointer;
+    }
+
+    #game {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
     }
 
     .grid {
@@ -36,16 +44,39 @@
 
     .tile {
       width: 120px;
-      height: 50px;
+      height: 55px;
       display: flex;
       align-items: center;
       justify-content: center;
-      border: 1px solid #ccc;
+      border: 2px solid #ccc;
+      cursor: pointer;
+      font-weight: bold;
+      background: white;
+      transition: 0.2s;
+    }
+
+    .tile.selected {
+      background: #ddd;
+    }
+
+    .locked {
+      color: white;
+      border: none;
+      cursor: default;
+    }
+
+    button {
+      padding: 10px 16px;
+      border: none;
+      border-radius: 6px;
+      background: #333;
+      color: white;
       cursor: pointer;
     }
 
-    .selected {
-      background: #ddd;
+    #status {
+      font-weight: bold;
+      height: 24px;
     }
   </style>
 </head>
@@ -54,17 +85,27 @@
 
 <button class="home" onclick="location.href='index.html'">🏠 Home</button>
 
-<div>
-  <h2>Connections</h2>
+<h2>Connections</h2>
 
+<div id="game">
+
+  <!-- solved groups -->
   <div id="solved"></div>
+
+  <!-- active grid -->
   <div class="grid" id="grid"></div>
 
   <button onclick="submitGroup()">Submit</button>
+
   <p id="status"></p>
+
 </div>
 
 <script>
+
+/////////////////////////////
+// 🔥 EDIT GROUPS HERE
+/////////////////////////////
 
 const groups = [
   { name: "FIRST DATE ORDERS", words: ["PIZZA","PISTACHIO","MOZZARELLA BALLS","RAVIOLI"] },
@@ -73,18 +114,27 @@ const groups = [
   { name: "BABE FAVORITES", words: ["BURGER","TTEOKBOKKI","COOKIES","COCO MILKTEA"] }
 ];
 
+const colors = ["#f9df6d","#a0c4ff","#cdb4db","#bde0fe"];
+
 let allWords = groups.flatMap(g => g.words)
   .sort(() => Math.random() - 0.5);
 
 let selected = [];
-let solved = [];
+let solvedCount = 0;
 
-document.getElementById("grid").innerHTML =
-  allWords.map(w =>
-    `<div class="tile" onclick="toggle(this,'${w}')">${w}</div>`
-  ).join("");
+// render grid
+function renderGrid() {
+  document.getElementById("grid").innerHTML =
+    allWords.map(w =>
+      `<div class="tile" onclick="toggle(this,'${w}')">${w}</div>`
+    ).join("");
+}
+
+renderGrid();
 
 function toggle(el, word) {
+  if (el.classList.contains("locked")) return;
+
   if (selected.includes(word)) {
     selected = selected.filter(x => x !== word);
     el.classList.remove("selected");
@@ -102,12 +152,9 @@ function submitGroup() {
   );
 
   if (match) {
-    solved.push(...match.words);
 
-    // remove from grid
-    document.querySelectorAll(".tile").forEach(t => {
-      if (match.words.includes(t.innerText)) t.remove();
-    });
+    // remove words from grid list
+    allWords = allWords.filter(w => !match.words.includes(w));
 
     // create solved row
     let row = document.createElement("div");
@@ -115,16 +162,23 @@ function submitGroup() {
 
     match.words.forEach(w => {
       let box = document.createElement("div");
-      box.className = "tile";
-      box.style.background = "#c8f7c5";
+      box.className = "tile locked";
+      box.style.background = colors[solvedCount];
       box.innerText = w;
       row.appendChild(box);
     });
 
     document.getElementById("solved").appendChild(row);
 
+    solvedCount++;
+
+    renderGrid();
+
     document.getElementById("status").innerText =
       "Solved: " + match.name + " 💛";
+
+  } else {
+    document.getElementById("status").innerText = "Not quite ❌";
   }
 
   selected = [];
