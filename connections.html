@@ -54,7 +54,7 @@ style="position:fixed; top:15px; left:15px; padding:8px 12px; border:none; borde
   <div class="grid" id="grid"></div>
 
   <button onclick="submitGroup()">Submit</button>
-  <p id="status"></p>
+  <p id="status" style="font-size:18px; font-weight:bold;"></p></p>
 </div>
 
 <script>
@@ -75,7 +75,7 @@ let allWords = groups.flatMap(g => g.words)
   .sort(() => Math.random() - 0.5);
   
 let selected = [];
-let allWords = groups.flat();
+let solved = [];
 
 document.getElementById("grid").innerHTML =
   allWords.map(w =>
@@ -83,6 +83,8 @@ document.getElementById("grid").innerHTML =
   ).join("");
 
 function toggle(el, word) {
+  if (solved.includes(word)) return;
+
   if (selected.includes(word)) {
     selected = selected.filter(x => x !== word);
     el.classList.remove("selected");
@@ -95,18 +97,31 @@ function toggle(el, word) {
 function submitGroup() {
   if (selected.length !== 4) return;
 
-  let correct = groups.some(g =>
-    g.every(w => selected.includes(w))
+  let match = groups.find(g =>
+    g.words.every(w => selected.includes(w))
   );
 
-  document.getElementById("status").innerText =
-    correct ? "Correct 💛" : "Wrong ❌";
+  if (match) {
+    solved.push(...match.words);
+
+    // highlight solved group visually
+    document.querySelectorAll(".tile").forEach(t => {
+      if (match.words.includes(t.innerText)) {
+        t.style.background = "#c8f7c5";
+        t.style.pointerEvents = "none";
+      }
+    });
+
+    document.getElementById("status").innerText =
+      "Solved: " + match.name + " 💛";
+
+  } else {
+    document.getElementById("status").innerText = "Wrong ❌";
+  }
 
   selected = [];
-  document.querySelectorAll(".tile").forEach(t =>
-    t.classList.remove("selected")
-  );
 }
+
 
 </script>
 
