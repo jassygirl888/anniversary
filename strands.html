@@ -44,7 +44,6 @@
       justify-content: center;
       cursor: pointer;
       user-select: none;
-      font-size: 18px;
     }
 
     .selected {
@@ -73,7 +72,7 @@
 
   <div class="grid" id="grid"></div>
 
-  <p>Current word: <span id="current"></span></p>
+  <p>Current: <span id="current"></span></p>
 
   <button onclick="submitWord()">Submit</button>
 
@@ -86,65 +85,70 @@
 
 <script>
 
-//////////////////////////////
-// 🔥 EDIT WORDS HERE ONLY
-//////////////////////////////
+const words = ["PHOTOBOOTH","PIZZA","CALLS","COFFEE","SUSHI","JESSY","TICKETS"];
 
-const words = [
-  "PHOTOBOOTH",
-  "PIZZA",
-  "CALLS",
-  "COFFEE",
-  "SUSHI",
-  "JESSY",
-  "TICKETS"
-];
-
-// 🧠 create safe letter pool
 let pool = words.join("").split("");
-
-// shuffle
 pool.sort(() => Math.random() - 0.5);
 
+let grid = [];
 let current = "";
 let found = [];
+let selected = [];
 
-// render grid
+let size = 6;
+
+pool.forEach((l, i) => {
+  grid.push({
+    letter: l,
+    row: Math.floor(i / size),
+    col: i % size
+  });
+});
+
 document.getElementById("grid").innerHTML =
-  pool.map((l, i) =>
-    `<div class="cell" data-i="${i}" onclick="pick(this,'${l}')">${l}</div>`
+  grid.map((c, i) =>
+    `<div class="cell" onclick="pick(${i})">${c.letter}</div>`
   ).join("");
 
-function pick(el, letter) {
-  // prevent duplicate spam selection
-  if (el.classList.contains("selected")) return;
+function pick(i) {
+  let cell = grid[i];
 
-  el.classList.add("selected");
-  current += letter;
+  if (selected.length === 0) {
+    selected.push(i);
+  } else {
+    let last = grid[selected[selected.length - 1]];
 
+    let adjacent =
+      Math.abs(last.row - cell.row) <= 1 &&
+      Math.abs(last.col - cell.col) <= 1;
+
+    if (!adjacent) return;
+    selected.push(i);
+  }
+
+  document.querySelectorAll(".cell")[i].classList.add("selected");
+
+  current = selected.map(x => grid[x].letter).join("");
   document.getElementById("current").innerText = current;
 }
 
 function submitWord() {
   if (words.includes(current) && !found.includes(current)) {
     found.push(current);
-
-    document.getElementById("status").innerText =
-      "Found: " + current + " 💛";
+    document.getElementById("status").innerText = "Found 💛";
   } else {
-    document.getElementById("status").innerText =
-      "Try again 💭";
+    document.getElementById("status").innerText = "Try again 💭";
   }
 
   current = "";
   document.getElementById("current").innerText = "";
 
-  // reset grid selection
   document.querySelectorAll(".cell").forEach(c =>
     c.classList.remove("selected")
   );
 
-  // win condition
+  selected = [];
+
   if (found.length === words.length) {
     document.getElementById("spangram").style.display = "block";
   }
