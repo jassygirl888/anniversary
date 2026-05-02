@@ -15,24 +15,6 @@
       text-align: center;
     }
 
-    .grid {
-      display: grid;
-      grid-template-columns: repeat(4, 120px);
-      gap: 10px;
-      justify-content: center;
-    }
-
-    .tile {
-      padding: 10px;
-      border: 1px solid #ccc;
-      cursor: pointer;
-      user-select: none;
-    }
-
-    .selected {
-      background: #ddd;
-    }
-
     .home {
       position: fixed;
       top: 15px;
@@ -44,52 +26,52 @@
       color: white;
       cursor: pointer;
     }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(4, 120px);
+      gap: 10px;
+      justify-content: center;
+    }
+
+    .tile {
+      width: 120px;
+      height: 50px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid #ccc;
+      cursor: pointer;
+    }
+
+    .selected {
+      background: #ddd;
+    }
   </style>
 </head>
 
 <body>
 
-<!-- 🏠 HOME BUTTON (KEEP ONLY ONE) -->
 <button class="home" onclick="location.href='index.html'">🏠 Home</button>
 
 <div>
   <h2>Connections</h2>
 
+  <div id="solved"></div>
   <div class="grid" id="grid"></div>
 
   <button onclick="submitGroup()">Submit</button>
-
-  <p id="status" style="font-size:18px; font-weight:bold;"></p>
+  <p id="status"></p>
 </div>
 
 <script>
 
-/////////////////////////////
-// 🔥 FIXED GROUP STRUCTURE
-/////////////////////////////
-
 const groups = [
-  {
-    name: "FIRST DATE ORDERS",
-    words: ["PIZZA","PISTACHIO","MOZZARELLA BALLS","RAVIOLI"]
-  },
-  {
-    name: "DATING SPOTS",
-    words: ["AMANAO","KODAWARI","MINANTE","TALES AND FEELINGS"]
-  },
-  {
-    name: "CALL NAMES",
-    words: ["BABA","LOVEY","LANGLING","BABY"]
-  },
-  {
-    name: "BABE FAVORITES",
-    words: ["BURGER","TTEOKBOKKI","COOKIES","COCO MILKTEA"]
-  }
+  { name: "FIRST DATE ORDERS", words: ["PIZZA","PISTACHIO","MOZZARELLA BALLS","RAVIOLI"] },
+  { name: "DATING SPOTS", words: ["AMANAO","KODAWARI","MINANTE","TALES AND FEELINGS"] },
+  { name: "CALL NAMES", words: ["BABA","LOVEY","LANGLING","BABY"] },
+  { name: "BABE FAVORITES", words: ["BURGER","TTEOKBOKKI","COOKIES","COCO MILKTEA"] }
 ];
-
-/////////////////////////////
-// SHUFFLE WORDS
-/////////////////////////////
 
 let allWords = groups.flatMap(g => g.words)
   .sort(() => Math.random() - 0.5);
@@ -103,8 +85,6 @@ document.getElementById("grid").innerHTML =
   ).join("");
 
 function toggle(el, word) {
-  if (solved.includes(word)) return;
-
   if (selected.includes(word)) {
     selected = selected.filter(x => x !== word);
     el.classList.remove("selected");
@@ -124,18 +104,27 @@ function submitGroup() {
   if (match) {
     solved.push(...match.words);
 
+    // remove from grid
     document.querySelectorAll(".tile").forEach(t => {
-      if (match.words.includes(t.innerText)) {
-        t.style.background = "#c8f7c5";
-        t.style.pointerEvents = "none";
-      }
+      if (match.words.includes(t.innerText)) t.remove();
     });
+
+    // create solved row
+    let row = document.createElement("div");
+    row.className = "grid";
+
+    match.words.forEach(w => {
+      let box = document.createElement("div");
+      box.className = "tile";
+      box.style.background = "#c8f7c5";
+      box.innerText = w;
+      row.appendChild(box);
+    });
+
+    document.getElementById("solved").appendChild(row);
 
     document.getElementById("status").innerText =
       "Solved: " + match.name + " 💛";
-
-  } else {
-    document.getElementById("status").innerText = "Wrong ❌";
   }
 
   selected = [];
